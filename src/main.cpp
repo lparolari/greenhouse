@@ -1,15 +1,15 @@
 #include <Arduino.h>
 #include <Wire.h>
-
 #include <LiquidCrystal.h>
 
-#include "setup.h"
 #include "dht.hpp"
 #include "display.hpp"
 #include "serial.hpp"
+#include "moisture.hpp"
 
 const uint16_t MESSAGE_TEMP = 0;
 const uint16_t MESSAGE_LIGHT = 1;
+const uint16_t MESSAGE_MOISUTRE = 2;
 
 int light_max = 250;
 int light_min = 0;
@@ -17,7 +17,8 @@ int light_min = 0;
 struct Config
 {
   uint32_t dht_delay_ms = 1000;
-  uint16_t message_toggle = 0U;
+  uint16_t message_toggle = MESSAGE_TEMP;
+  bool toggle = true;
 };
 
 Config config;
@@ -69,6 +70,14 @@ void loop()
       display::lcd.print((float)light_value / (light_max - light_min) * 100);
       display::lcd.print(" %");
     }
+    else if (config.message_toggle == MESSAGE_MOISUTRE)
+    {
+      greenhouse::moisture::MoistureSensor<> moisture;
+      moisture.read();
+      display::lcd.clear();
+      display::lcd.setCursor(0, 0);
+      display::lcd.print(moisture.get());
+    }
     else
     {
       display::lcd.clear();
@@ -76,7 +85,8 @@ void loop()
       display::lcd.print(":)");
     }
 
-    config.message_toggle = (config.message_toggle + 1) % 3;
+    if (config.toggle)
+      config.message_toggle = (config.message_toggle + 1) % 4;
   }
 
   delay(1);
