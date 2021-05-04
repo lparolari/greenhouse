@@ -7,6 +7,7 @@
 #include "serial.hpp"
 #include "moisture.hpp"
 #include "utils.hpp"
+#include "brightness.hpp"
 
 const uint16_t MESSAGE_TEMP = 0;
 const uint16_t MESSAGE_LIGHT = 1;
@@ -30,6 +31,8 @@ unsigned long previous_millis_2 = 0;
 void display_temperature_and_humidity();
 
 greenhouse::display::Display<> display;
+greenhouse::brightness::BrightnessSensor<> brightness_sensor;
+greenhouse::moisture::MoistureSensor<> moisture_sensor;
 
 void setup()
 {
@@ -67,32 +70,17 @@ void loop()
     }
     else if (config.message_toggle == MESSAGE_LIGHT)
     {
-      const int light_value = analogRead(0);
-
-      // Serial.println(buf);
-      // sprintf(buf, "Light = %d", 100);
-
-      display.display(eps + "Light = " + 100);
-
-      // display::lcd.clear();
-      // display::lcd.setCursor(0, 0);
-      // display::lcd.print("Light = ");
-      // display::lcd.print((float)light_value / (light_max - light_min) * 100);
-      // display::lcd.print(" %");
+      brightness_sensor.read();
+      display.display(eps + "Light = " + brightness_sensor.get() + " %");
     }
     else if (config.message_toggle == MESSAGE_MOISUTRE)
     {
-      greenhouse::moisture::MoistureSensor<> moisture;
-      moisture.read();
-      // display::lcd.clear();
-      // display::lcd.setCursor(0, 0);
-      // display::lcd.print(moisture.get());
+      moisture_sensor.read();
+      display.display(eps + "Light = " + moisture_sensor.get() + " %");
     }
     else
     {
-      // display::lcd.clear();
-      // display::lcd.setCursor(0, 0);
-      // display::lcd.print(":)");
+      display.display(":)");
     }
 
     if (config.toggle)
