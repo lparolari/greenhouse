@@ -4,11 +4,12 @@
 #include "serial.hpp"
 #include "display.hpp"
 #include "dht.hpp"
+#include "water.hpp"
 #include "utils.hpp"
 
 // Sensors:
 // * brightness
-// * water
+// * [X] water
 // * moisture
 // * [X] temperature
 // * [X] humidity
@@ -20,6 +21,7 @@
 
 greenhouse::display::Display<> display;
 greenhouse::dht::Dht<> dht;
+greenhouse::water::WaterSensor<3> water_sensor;
 
 void setup()
 {
@@ -40,7 +42,11 @@ void loop()
 {
     using greenhouse::utils::eps;
 
+    water_sensor.read();
+
     Serial.println(eps + "Temp " + dht.temperature());
     Serial.println(eps + "Humi " + dht.relative_humidity());
+    Serial.println(eps + "Water" + water_sensor.get());
+
     delay(1000);
 }
