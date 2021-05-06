@@ -9,7 +9,7 @@ namespace greenhouse::moisture
     // @tparam T The measurement type
     // @tparam AirValue The raw value of sensor in dry conditions (in the air)
     // @tparam WaterValue The raw value of sensor in wet conditions (in the water)
-    template <uint8_t Pin = 0U, typename T = float, int AirValue = 440, int WaterValue = 200>
+    template <uint8_t Pin = 0U, typename T = float, int AirValue = 530, int WaterValue = 230>
     class MoistureSensor
     {
     private:
@@ -25,7 +25,7 @@ namespace greenhouse::moisture
         // @returns The percentage of moisture
         T get() const
         {
-            return static_cast<T>(_value) / (AirValue - WaterValue) * 100;
+            return 100 - (static_cast<T>(_value) - WaterValue) / (AirValue - WaterValue) * 100;
         }
 
         // @returns The sensor's raw value
