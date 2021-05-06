@@ -1,6 +1,11 @@
 #include <Arduino.h>
 
-namespace serial
+namespace greenhouse::serial
 {
     HardwareSerial serial = Serial;
-} // namespace serial
+
+    void hello()
+    {
+        Serial.println("Hello, World!");
+    }
+} // namespace greenhouse::serial

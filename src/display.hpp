@@ -7,13 +7,17 @@
 
 namespace greenhouse::display
 {
-    LiquidCrystal lcd(7, 8, 9, 10, 11, 12);
+    // LiquidCrystal lcd(7, ) // (7, 8, 9, 10, 11, 12);
 
-    template <int C = 16, int R = 2>
+    template <uint8_t rs = 7, uint8_t enable = 8,
+              uint8_t d0 = 9, uint8_t d1 = 10, uint8_t d2 = 11, uint8_t d3 = 12,
+              int C = 16, int R = 2>
     class Display
     {
     public:
-        Display() = default;
+        LiquidCrystal _lcd;
+
+        Display() : _lcd(rs, enable, d0, d1, d2, d3){};
 
         void hello()
         {
@@ -22,7 +26,7 @@ namespace greenhouse::display
 
         void display(const String &s)
         {
-            lcd.clear();
+            _lcd.clear();
 
             for (int i = 0; i < R; i++)
             {
@@ -31,8 +35,8 @@ namespace greenhouse::display
 
                 if (!(endIndex <= beginIndex))
                 {
-                    lcd.setCursor(0, i);
-                    lcd.print(s.substring(beginIndex, endIndex)); // endIndex is exclusive
+                    _lcd.setCursor(0, i);
+                    _lcd.print(s.substring(beginIndex, endIndex)); // endIndex is exclusive
                 }
             }
         }
