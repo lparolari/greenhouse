@@ -31,7 +31,7 @@ namespace greenhouse::view
 
         String get_message() const
         {
-            if (_i < 0 || _i >= N)
+            if (_i < 0 || _i >= _n)
                 return greenhouse::utils::eps;
 
             return _messages[_i];
