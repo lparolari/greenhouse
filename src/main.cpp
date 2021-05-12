@@ -11,6 +11,7 @@
 #include "waterpump.hpp"
 #include "view.hpp"
 #include "delay.hpp"
+#include "button.hpp"
 
 // Sensors:
 // * [X] brightness
@@ -27,6 +28,8 @@
 
 using greenhouse::utils::eps;
 
+const bool debug = true;
+
 greenhouse::display::Display<7, 8, 9, 10, 11, 12> display;
 greenhouse::dht::Dht<2> dht;
 greenhouse::waterpump::WaterPump<3> water_pump;
@@ -38,9 +41,10 @@ greenhouse::view::View<5> view;
 
 greenhouse::delay::Delay<3000> display_delay;
 greenhouse::delay::Delay<1000> debug_delay;
+greenhouse::delay::Delay<100> button_delay;
 
-unsigned long previous_millis = 0;
-unsigned long current_millis = 0;
+greenhouse::button::ToggleButton<22> toggle_display_slider_button;
+greenhouse::button::DebounceButton<23> toggle_slide_button;
 
 void setup()
 {
@@ -64,11 +68,15 @@ void loop()
     brightness_sensor.read();
     moisutre_sensor.read();
 
+    toggle_display_slider_button.read();
+    toggle_slide_button.read();
+
     // forward delays
     auto ms = millis();
 
     display_delay.tick(ms);
-    // debug_delay.tick(ms);
+    button_delay.tick(ms);
+    debug_delay.tick(ms);
 
     // prepare the view with the display
     view.clear();
@@ -83,12 +91,29 @@ void loop()
     {
         display_delay.fired();
 
+        if (toggle_slide_button.pressed())
+            view.next(true);
+        else
+            view.next();
+
         display.display(view.get_message());
-        view.next();
+    }
+
+    // trigger view slider based on button pressed
+    if (button_delay.fire())
+    {
+        button_delay.fired();
+
+        if (toggle_display_slider_button.pressed())
+        {
+            view.disable();
+        }
+        else
+            view.enable();
     }
 
     // trigger dalayed actions for debug
-    if (debug_delay.fire())
+    if (debug_delay.fire() && debug)
     {
         debug_delay.fired();
         Serial.println("=======");
@@ -97,6 +122,8 @@ void loop()
         Serial.println(eps + "Wate = " + water_sensor.get() + " (" + water_sensor.raw() + ")");
         Serial.println(eps + "Brig = " + brightness_sensor.get() + " (" + brightness_sensor.raw() + ")");
         Serial.println(eps + "Mois = " + moisutre_sensor.get() + " (" + moisutre_sensor.raw() + ")");
+        Serial.println(eps + "Slid = " + toggle_display_slider_button.pressed());
+        Serial.println(eps + "Next = " + toggle_slide_button.pressed());
     }
 
     // wait 100 ms, prevent oversampling (source?)
