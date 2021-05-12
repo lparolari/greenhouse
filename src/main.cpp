@@ -12,19 +12,7 @@
 #include "view.hpp"
 #include "delay.hpp"
 #include "button.hpp"
-
-// Sensors:
-// * [X] brightness
-// * [X] water
-// * [X] moisture
-// * [X] temperature
-// * [X] humidity
-// * [ ] real time clock
-
-// Attuators:
-// * [X] serial
-// * [X] display
-// * [X] water pump
+#include "pin.hpp"
 
 using greenhouse::utils::eps;
 
@@ -36,6 +24,7 @@ greenhouse::waterpump::WaterPump<3> water_pump;
 greenhouse::moisture::MoistureSensor<1> moisutre_sensor;
 greenhouse::brightness::BrightnessSensor<2> brightness_sensor;
 greenhouse::water::WaterSensor<3> water_sensor;
+greenhouse::pin::OutputPin<28> light_pin; // TODO: change pin
 
 greenhouse::view::View<5> view;
 
@@ -43,8 +32,20 @@ greenhouse::delay::Delay<3000> display_delay;
 greenhouse::delay::Delay<1000> debug_delay;
 greenhouse::delay::Delay<100> button_delay;
 
-greenhouse::button::ToggleButton<22> toggle_display_slider_button;
-greenhouse::button::DebounceButton<23> toggle_slide_button;
+greenhouse::button::ToggleButton<22> display_slider_button;
+greenhouse::button::DebounceButton<23> slide_button;
+greenhouse::button::DebounceButton<24> waterpump_button;
+greenhouse::button::ToggleButton<25> light_button;
+
+// Many (not functional) functions, better proceudres.
+// This should be changed for program maintainability. However, up to now
+// the only file who knows about components is this one (main.cpp).
+
+void waterPumpOnToggleHandler();
+void viewScrollToggleHandler();
+void viewSliderToggleHandler();
+void lightToggleHandler();
+void printDebugSerial();
 
 void setup()
 {
@@ -68,8 +69,11 @@ void loop()
     brightness_sensor.read();
     moisutre_sensor.read();
 
-    toggle_display_slider_button.read();
-    toggle_slide_button.read();
+    // read also button status
+    display_slider_button.read();
+    slide_button.read();
+    waterpump_button.read();
+    light_button.read();
 
     // forward delays
     auto ms = millis();
@@ -91,10 +95,7 @@ void loop()
     {
         display_delay.fired();
 
-        if (toggle_slide_button.pressed())
-            view.next(true);
-        else
-            view.next();
+        viewScrollToggleHandler();
 
         display.display(view.get_message());
     }
@@ -104,28 +105,65 @@ void loop()
     {
         button_delay.fired();
 
-        if (toggle_display_slider_button.pressed())
-        {
-            view.disable();
-        }
-        else
-            view.enable();
+        // A delay may not be needed in this case, however
+        // we want to avoid noise (which also buttons handle).
+
+        waterPumpOnToggleHandler();
+        viewSliderToggleHandler();
+        lightToggleHandler();
     }
 
     // trigger dalayed actions for debug
     if (debug_delay.fire() && debug)
     {
         debug_delay.fired();
-        Serial.println("=======");
-        Serial.println(eps + "Temp = " + dht.temperature());
-        Serial.println(eps + "Humi = " + dht.relative_humidity());
-        Serial.println(eps + "Wate = " + water_sensor.get() + " (" + water_sensor.raw() + ")");
-        Serial.println(eps + "Brig = " + brightness_sensor.get() + " (" + brightness_sensor.raw() + ")");
-        Serial.println(eps + "Mois = " + moisutre_sensor.get() + " (" + moisutre_sensor.raw() + ")");
-        Serial.println(eps + "Slid = " + toggle_display_slider_button.pressed());
-        Serial.println(eps + "Next = " + toggle_slide_button.pressed());
+        printDebugSerial();
     }
 
-    // wait 100 ms, prevent oversampling (source?)
-    delay(100);
+    // wait 1 ms, prevent oversampling [without source]
+    delay(1);
+}
+
+void waterPumpOnToggleHandler()
+{
+    if (waterpump_button.pressed())
+        water_pump.on();
+    else
+        water_pump.off();
+}
+
+void viewScrollToggleHandler()
+{
+    if (slide_button.pressed())
+        view.next(true);
+    else
+        view.next();
+}
+
+void viewSliderToggleHandler()
+{
+    if (display_slider_button.pressed())
+        view.disable();
+    else
+        view.enable();
+}
+
+void lightToggleHandler()
+{
+    if (light_button.pressed())
+        light_pin.high();
+    else
+        light_pin.low();
+}
+
+void printDebugSerial()
+{
+    Serial.println("=======");
+    Serial.println(eps + "Temp = " + dht.temperature());
+    Serial.println(eps + "Humi = " + dht.relative_humidity());
+    Serial.println(eps + "Wate = " + water_sensor.get() + " (" + water_sensor.raw() + ")");
+    Serial.println(eps + "Brig = " + brightness_sensor.get() + " (" + brightness_sensor.raw() + ")");
+    Serial.println(eps + "Mois = " + moisutre_sensor.get() + " (" + moisutre_sensor.raw() + ")");
+    Serial.println(eps + "Slid = " + display_slider_button.pressed());
+    Serial.println(eps + "Next = " + slide_button.pressed());
 }
