@@ -68,7 +68,7 @@ namespace greenhouse::button
     //
     // State           Input   State'
     // -----           -----   ------
-    // off*            low     off
+    // off             low     off
     // off             high    off2on
     // off2on          low     off
     // off2on          high    on
@@ -77,7 +77,9 @@ namespace greenhouse::button
     // maytoggle       low     maytoggle
     // maytoggle       high    maytoggle2off
     // maytoggle2off   low     maytoggle
-    // maytoggle2off   high    off
+    // maytoggle2off   high    keepoff
+    // keepoff         low     off
+    // keepoff         high    keepoff
     //
     // * As accepted states we mean states that makes the button pressed.
     //
@@ -96,6 +98,7 @@ namespace greenhouse::button
         static constexpr uint8_t _ON = 2;
         static constexpr uint8_t _MAY_TOGGLE = 3;
         static constexpr uint8_t _MAY_TOGGLE_TO_OFF = 4;
+        static constexpr uint8_t _KEEP_OFF = 5;
 
         uint8_t get_state(uint8_t state, int input) const
         {
@@ -125,7 +128,12 @@ namespace greenhouse::button
                 if (input == LOW)
                     return _MAY_TOGGLE;
                 if (input == HIGH)
+                    return _KEEP_OFF;
+            case _KEEP_OFF:
+                if (input == LOW)
                     return _OFF;
+                if (input == HIGH)
+                    return _KEEP_OFF;
             default:
                 return _OFF;
             }
