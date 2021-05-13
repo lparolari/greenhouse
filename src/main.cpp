@@ -20,11 +20,11 @@ const bool debug = true;
 
 greenhouse::display::Display<7, 8, 9, 10, 11, 12> display;
 greenhouse::dht::Dht<2> dht;
-greenhouse::waterpump::WaterPump<3> water_pump;
+greenhouse::waterpump::WaterPump<23> water_pump;
 greenhouse::moisture::MoistureSensor<1> moisutre_sensor;
 greenhouse::brightness::BrightnessSensor<2> brightness_sensor;
 greenhouse::water::WaterSensor<3> water_sensor;
-greenhouse::pin::OutputPin<28> light_pin; // TODO: change pin
+greenhouse::pin::OutputPin<22> light_pin; // TODO: change pin
 
 greenhouse::view::View<5> view;
 
@@ -32,10 +32,10 @@ greenhouse::delay::Delay<3000> display_delay;
 greenhouse::delay::Delay<1000> debug_delay;
 greenhouse::delay::Delay<100> button_delay;
 
-greenhouse::button::ToggleButton<22> display_slider_button;
-greenhouse::button::DebounceButton<23> slide_button;
-greenhouse::button::DebounceButton<24> waterpump_button;
-greenhouse::button::ToggleButton<25> light_button;
+greenhouse::button::ToggleButton<53> display_slider_button;
+greenhouse::button::DebounceButton<52> slide_button;
+greenhouse::button::DebounceButton<51> waterpump_button;
+greenhouse::button::ToggleButton<50> light_button;
 
 // Many (not functional) functions, better proceudres.
 // This should be changed for program maintainability. However, up to now
@@ -166,4 +166,6 @@ void printDebugSerial()
     Serial.println(eps + "Mois = " + moisutre_sensor.get() + " (" + moisutre_sensor.raw() + ")");
     Serial.println(eps + "Slid = " + display_slider_button.pressed());
     Serial.println(eps + "Next = " + slide_button.pressed());
+    Serial.println(eps + "Wate = " + waterpump_button.pressed());
+    Serial.println(eps + "Ligh = " + light_button.pressed());
 }
