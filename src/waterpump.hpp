@@ -12,7 +12,7 @@ namespace greenhouse::waterpump
     class WaterPump
     {
     private:
-        OutputPin<Pin> _pin;
+        greenhouse::pin::DigitalOutput<Pin> _pin;
 
     public:
         void begin()

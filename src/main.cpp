@@ -24,7 +24,7 @@ greenhouse::waterpump::WaterPump<23> water_pump;
 greenhouse::moisture::MoistureSensor<1> moisutre_sensor;
 greenhouse::brightness::BrightnessSensor<2> brightness_sensor;
 greenhouse::water::WaterSensor<3> water_sensor;
-greenhouse::pin::OutputPin<22> light_pin; // TODO: change pin
+greenhouse::pin::DigitalOutput<22> light_pin; // TODO: change pin
 
 greenhouse::view::View<5> view;
 

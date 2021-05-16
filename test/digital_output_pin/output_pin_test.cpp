@@ -17,7 +17,7 @@ void pin_output_is_low_after_creation_test(void)
 
 void pin_output_is_high_after_setting_high_test(void)
 {
-    greenhouse::pin::OutputPin<o_pin> out_pin;
+    greenhouse::pin::DigitalOutput<o_pin> out_pin;
     out_pin.begin();
 
     TEST_ASSERT_EQUAL(LOW, digitalRead(i_pin));
@@ -29,7 +29,7 @@ void pin_output_is_high_after_setting_high_test(void)
 
 void pin_output_can_toggle_off_test(void)
 {
-    greenhouse::pin::OutputPin<o_pin> out_pin;
+    greenhouse::pin::DigitalOutput<o_pin> out_pin;
     out_pin.begin();
 
     TEST_ASSERT_EQUAL(LOW, digitalRead(i_pin));
