@@ -14,4 +14,5 @@ namespace greenhouse::brightness
     // @tparam LightValue Max value of the sensor (ligh)
     template <uint8_t Pin = 0U, int LightValue = 250, int DarkValue = 0>
     using BrightnessSensor = greenhouse::sensor::PercentSensor<Pin, greenhouse::pin::AnalogInput<Pin>, DarkValue, LightValue, float>;
+
 } // namespace greenhouse::brightness
