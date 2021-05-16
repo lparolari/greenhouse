@@ -1,30 +1,33 @@
 #pragma once
 
 #include <Arduino.h>
+#include "pin.hpp"
 
 namespace greenhouse::waterpump
 {
+
     // @brief An interface to a moisture sensor
     // @tparam Pin The pin sensor is attached to
     template <uint8_t Pin = 0U>
     class WaterPump
     {
+    private:
+        OutputPin<Pin> _pin;
+
     public:
-        // @brief Initializes the componet. To be called in Arduino's `setup()` function.
         void begin()
         {
-            pinMode(Pin, OUTPUT);
-            digitalWrite(Pin, LOW);
+            _pin.begin();
         }
 
         void on()
         {
-            digitalWrite(Pin, HIGH);
+            _pin.high();
         }
 
         void off()
         {
-            digitalWrite(Pin, LOW);
+            _pin.low();
         }
     };
 } // namespace greenhouse::waterpump

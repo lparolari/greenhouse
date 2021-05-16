@@ -7,28 +7,40 @@
 
 using greenhouse::utils::eps;
 
-const uint8_t pin = 0;
+const uint8_t o_pin = 23; // read values for test
+const uint8_t i_pin = 22; // controlled by the component to test
 
 void pin_output_is_low_after_creation_test(void)
 {
-    greenhouse::pin::OutputPin<pin> out_pin;
-
-    pinMode(pin, INPUT);
-    TEST_ASSERT_EQUAL(LOW, digitalRead(pin));
+    TEST_ASSERT_EQUAL(LOW, digitalRead(i_pin));
 }
 
 void pin_output_is_high_after_setting_high_test(void)
 {
-    greenhouse::pin::OutputPin<pin> out_pin;
+    greenhouse::pin::OutputPin<o_pin> out_pin;
+    out_pin.begin();
 
-    pinMode(pin, INPUT);
-    TEST_ASSERT_EQUAL(LOW, digitalRead(pin));
-    pinMode(pin, OUTPUT);
+    TEST_ASSERT_EQUAL(LOW, digitalRead(i_pin));
 
     out_pin.high();
 
-    pinMode(pin, INPUT);
-    TEST_ASSERT_EQUAL(HIGH, digitalRead(pin));
+    TEST_ASSERT_EQUAL(HIGH, digitalRead(i_pin));
+}
+
+void pin_output_can_toggle_off_test(void)
+{
+    greenhouse::pin::OutputPin<o_pin> out_pin;
+    out_pin.begin();
+
+    TEST_ASSERT_EQUAL(LOW, digitalRead(i_pin));
+
+    out_pin.high();
+
+    TEST_ASSERT_EQUAL(HIGH, digitalRead(i_pin));
+
+    out_pin.low();
+
+    TEST_ASSERT_EQUAL(LOW, digitalRead(i_pin));
 }
 
 void setup()
@@ -38,8 +50,11 @@ void setup()
 
     UNITY_BEGIN();
 
+    pinMode(i_pin, INPUT);
+
     RUN_TEST(pin_output_is_low_after_creation_test);
     RUN_TEST(pin_output_is_high_after_setting_high_test);
+    RUN_TEST(pin_output_can_toggle_off_test);
 
     UNITY_END();
 }

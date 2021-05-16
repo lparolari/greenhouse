@@ -7,25 +7,28 @@
 
 using greenhouse::utils::eps;
 
-const uint8_t pin = 22;
+const uint8_t out_pin = 22;    // simulate button open/closed
+const uint8_t button_pin = 23; // read button value
 const uint8_t button_delay = 50;
 
 void button_input_is_high_test(void)
 {
-    pinMode(pin, INPUT);
-    TEST_ASSERT_EQUAL(HIGH, digitalRead(pin));
+    pinMode(button_pin, INPUT);
+    TEST_ASSERT_EQUAL(HIGH, digitalRead(button_pin));
 }
 
 void button_is_not_pressed_if_value_not_read_test(void)
 {
-    greenhouse::button::DebounceButton<pin> debounce_button;
+    greenhouse::button::DebounceButton<button_pin> debounce_button;
+    debounce_button.begin();
 
     TEST_ASSERT_FALSE(debounce_button.pressed());
 }
 
 void button_is_not_pressed_after_first_read_with_high_value_test(void)
 {
-    greenhouse::button::DebounceButton<pin> debounce_button;
+    greenhouse::button::DebounceButton<button_pin> debounce_button;
+    debounce_button.begin();
 
     debounce_button.read();
     TEST_ASSERT_FALSE(debounce_button.pressed());
@@ -33,7 +36,8 @@ void button_is_not_pressed_after_first_read_with_high_value_test(void)
 
 void button_is_pressed_if_after_delay_input_pin_is_high_test(void)
 {
-    greenhouse::button::DebounceButton<pin, button_delay> debounce_button;
+    greenhouse::button::DebounceButton<button_pin, button_delay> debounce_button;
+    debounce_button.begin();
 
     debounce_button.read();
     TEST_ASSERT_FALSE(debounce_button.pressed());
@@ -56,6 +60,9 @@ void setup()
     delay(2000);
 
     UNITY_BEGIN();
+
+    pinMode(out_pin, OUTPUT);
+    digitalWrite(out_pin, HIGH);
 
     RUN_TEST(button_input_is_high_test);
     RUN_TEST(button_is_not_pressed_if_value_not_read_test);
