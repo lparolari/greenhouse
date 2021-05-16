@@ -51,5 +51,10 @@ namespace greenhouse::delay
         {
             return current_millis > start_millis + TimerMs;
         }
+
+        void reset()
+        {
+            first = true;
+        }
     };
 };

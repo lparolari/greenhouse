@@ -33,7 +33,6 @@ greenhouse::view::View<5> view;
 greenhouse::delay::Delay<3000> display_delay;
 greenhouse::delay::Delay<1000> debug_delay;
 greenhouse::delay::Delay<100> button_delay;
-greenhouse::delay::Delay<1000> waterpump_delay;
 
 greenhouse::delay::Timer<3000> waterpump_timer;
 
@@ -50,7 +49,7 @@ greenhouse::rtc::Rtc<> rtc;
 // the only file who knows about components is this one (main.cpp).
 
 // Read digital/analog values from sensors.
-void read_sensors();
+void forward_sensors();
 
 // Forward all delays with current millis.
 void forward_delays();
@@ -87,12 +86,12 @@ void setup()
     dht.sensor_specs();
 
     // set the alarm for watering the plant at 9 pm
-    rtc.setAlarm(DateTime(0, 0, 0, 21, 19, 15), DS3231_A1_Hour);
+    rtc.setAlarm(DateTime(0, 0, 0, 21, 00, 00), DS3231_A1_Hour);
 }
 
 void loop()
 {
-    read_sensors();
+    forward_sensors();
     forward_delays();
 
     // trigger delayed actions for display
@@ -127,29 +126,17 @@ void loop()
     }
 
     // trigger watering
-    if (waterpump_delay.is_fire())
+    if (rtc.alarmFired())
     {
-        if (rtc.alarmFired())
-        {
-            waterpump_timer.tick(millis());
-
-            water_pump.on();
-
-            if (waterpump_timer.is_after())
-            {
-                water_pump.off();
-                rtc.clearAlarm();
-            }
-        }
-
-        waterpump_delay.fired();
+        rtc.clearAlarm();
+        water_pump.on();
     }
 
     // wait 1 ms, prevent oversampling [without source]
     delay(1);
 }
 
-void read_sensors()
+void forward_sensors()
 {
     // get value from sensor at every loop, may be delayed
     // (see sensor's sampling frequency)
@@ -162,6 +149,9 @@ void read_sensors()
     slide_button.read();
     waterpump_button.read();
     light_button.read();
+
+    // tick also the water pump
+    water_pump.tick(millis());
 }
 
 void forward_delays()
@@ -171,7 +161,6 @@ void forward_delays()
     display_delay.tick(ms);
     button_delay.tick(ms);
     debug_delay.tick(ms);
-    waterpump_delay.tick(ms);
 }
 
 void populate_view()
@@ -229,4 +218,5 @@ void printDebugSerial()
     Serial.println(eps + "Wate = " + waterpump_button.pressed());
     Serial.println(eps + "Ligh = " + light_button.pressed());
     Serial.println(eps + "Time = " + rtc.now().hour() + ":" + rtc.now().minute() + ":" + rtc.now().second());
+    Serial.println(eps + "Alar = " + rtc.alarmFired());
 }
