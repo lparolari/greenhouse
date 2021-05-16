@@ -16,6 +16,12 @@ namespace greenhouse::moisture
         int _value = 0;
 
     public:
+        // @brief Initializes the componet. To be called in Arduino's `setup()` function.
+        void begin()
+        {
+            pinMode(Pin, INPUT);
+        }
+
         // @brief Reads the raw value
         void read()
         {

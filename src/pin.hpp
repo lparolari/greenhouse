@@ -8,7 +8,10 @@ namespace greenhouse::pin
     class OutputPin
     {
     public:
-        OutputPin()
+        OutputPin() = default;
+
+        // @brief Initializes the componet. To be called in Arduino's `setup()` function.
+        void begin()
         {
             pinMode(Pin, OUTPUT);
             digitalWrite(Pin, LOW);

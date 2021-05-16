@@ -54,6 +54,14 @@ void setup()
     display._lcd.begin(16, 2);
     dht._dht.begin();
     water_pump.begin();
+    moisutre_sensor.begin();
+    brightness_sensor.begin();
+    water_sensor.begin();
+    light_pin.begin();
+    display_slider_button.begin();
+    slide_button.begin();
+    waterpump_button.begin();
+    light_button.begin();
 
     // hello
     greenhouse::serial::hello();

@@ -27,6 +27,11 @@ namespace greenhouse::button
     public:
         DebounceButton() : _value(LOW), _prev_value(LOW)
         {
+        }
+
+        // @brief Initializes the componet. To be called in Arduino's `setup()` function.
+        void begin()
+        {
             pinMode(Pin, INPUT);
         }
 
@@ -141,6 +146,11 @@ namespace greenhouse::button
 
     public:
         ToggleButton() : _state(_OFF)
+        {
+        }
+
+        // @brief Initializes the componet. To be called in Arduino's `setup()` function.
+        void begin()
         {
             pinMode(Pin, INPUT);
         }
