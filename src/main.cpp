@@ -99,7 +99,7 @@ void loop()
     view.add_message(eps + "Mois = " + moisutre_sensor.get() + " %" + " (" + moisutre_sensor.raw() + ")");
 
     // trigger delayed actions for display
-    if (display_delay.fire())
+    if (display_delay.is_fire())
     {
         display_delay.fired();
 
@@ -109,7 +109,7 @@ void loop()
     }
 
     // trigger view slider based on button pressed
-    if (button_delay.fire())
+    if (button_delay.is_fire())
     {
         button_delay.fired();
 
@@ -122,7 +122,7 @@ void loop()
     }
 
     // trigger dalayed actions for debug
-    if (debug_delay.fire() && debug)
+    if (debug_delay.is_fire() && debug)
     {
         debug_delay.fired();
         printDebugSerial();

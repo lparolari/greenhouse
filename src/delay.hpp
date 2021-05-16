@@ -2,7 +2,7 @@
 
 namespace greenhouse::delay
 {
-    // @brief Delays the exectution of actions in a imperative world without
+    // @brief Delays the exectution of actions in a imperative world without callbacks.
     // @tparam DelayMs The delay in milliseconds to when the clock should fire
     template <int DelayMs>
     class Delay
@@ -17,7 +17,7 @@ namespace greenhouse::delay
             current_millis = ms;
         }
 
-        bool fire()
+        bool is_fire()
         {
             return (current_millis - previous_millis) > DelayMs;
         }

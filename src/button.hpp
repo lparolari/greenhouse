@@ -38,7 +38,7 @@ namespace greenhouse::button
         void read()
         {
             _delay.tick(millis());
-            if (_delay.fire())
+            if (_delay.is_fire())
             {
                 _prev_value = _value;
                 _value = digitalRead(Pin);
@@ -158,7 +158,7 @@ namespace greenhouse::button
         void read()
         {
             _delay.tick(millis());
-            if (_delay.fire())
+            if (_delay.is_fire())
             {
                 const int input = digitalRead(Pin);
 
