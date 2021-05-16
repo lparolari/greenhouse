@@ -5,6 +5,7 @@
 
 namespace greenhouse::rtc
 {
+    using DateTime = DateTime;
 
     template <class RealTimeClock = RTC_DS3231>
     class Rtc
@@ -58,6 +59,11 @@ namespace greenhouse::rtc
         bool alarmFired()
         {
             return _rtc.alarmFired(1);
+        }
+
+        void clearAlarm()
+        {
+            _rtc.clearAlarm(1);
         }
 
         // @returns A reference to the raw implementation of RTC
