@@ -59,7 +59,7 @@ namespace greenhouse::pin
 
         // @brief Return stored value
         // @returns A integer representing either low or high values with 0 or 1
-        int get()
+        int get() const
         {
             return _value;
         }
@@ -89,7 +89,7 @@ namespace greenhouse::pin
 
         // @brief Return stored value
         // @returns A integer between 0 and 1023
-        int get()
+        int get() const
         {
             return _value;
         }
