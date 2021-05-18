@@ -14,19 +14,20 @@
 #include "button.hpp"
 #include "pin.hpp"
 #include "rtc.hpp"
+#include "light.hpp"
 
 using greenhouse::rtc::DateTime;
 using greenhouse::utils::eps;
 
 const bool debug = true;
 
-greenhouse::display::Display<7, 8, 9, 10, 11, 12> display;
-greenhouse::dht::Dht<2> dht;
-greenhouse::waterpump::WaterPump<48> water_pump;
-greenhouse::moisture::MoistureSensor<1> moisutre_sensor;
-greenhouse::brightness::BrightnessSensor<2> brightness_sensor;
-greenhouse::water::WaterSensor<3> water_sensor;
-greenhouse::pin::DigitalOutput<22> light_pin; // TODO: change pin
+greenhouse::display::Display<32, 31, 30, 29, 28, 27> display;
+greenhouse::brightness::BrightnessSensor<0> brightness_sensor;
+greenhouse::dht::Dht<23> dht;
+greenhouse::waterpump::WaterPump<24> water_pump;
+greenhouse::moisture::MoistureSensor<25> moisutre_sensor;
+greenhouse::water::WaterSensor<26> water_sensor;
+greenhouse::light::Light<33> light;
 
 greenhouse::view::View<5> view;
 
@@ -36,10 +37,10 @@ greenhouse::delay::Delay<100> button_delay;
 
 greenhouse::delay::Timer<3000> waterpump_timer;
 
-greenhouse::button::ToggleButton<53> display_slider_button;
-greenhouse::button::DebounceButton<52> slide_button;
-greenhouse::button::DebounceButton<51> waterpump_button;
-greenhouse::button::ToggleButton<50> light_button;
+greenhouse::button::ToggleButton<60> display_slider_button;
+greenhouse::button::DebounceButton<60> slide_button;
+greenhouse::button::DebounceButton<52> waterpump_button;
+greenhouse::button::ToggleButton<53> light_button;
 
 greenhouse::rtc::Rtc<> rtc;
 
@@ -57,7 +58,7 @@ void forward_delays();
 // Create update messages for LCD view.
 void populate_view();
 
-void waterPumpOnToggleHandler();
+void waterPumpOnToggleHandler(bool, bool);
 void viewScrollToggleHandler();
 void viewSliderToggleHandler();
 void lightToggleHandler();
@@ -73,7 +74,7 @@ void setup()
     moisutre_sensor.begin();
     brightness_sensor.begin();
     water_sensor.begin();
-    light_pin.begin();
+    light.begin();
     display_slider_button.begin();
     slide_button.begin();
     waterpump_button.begin();
@@ -113,7 +114,7 @@ void loop()
         // A delay may not be needed in this case, however
         // we want to avoid noise (which also buttons handle).
 
-        // waterPumpOnToggleHandler();
+        waterPumpOnToggleHandler(waterpump_button.pressed(), false);
         viewSliderToggleHandler();
         lightToggleHandler();
     }
@@ -129,7 +130,7 @@ void loop()
     if (rtc.alarmFired())
     {
         rtc.clearAlarm();
-        water_pump.on();
+        waterPumpOnToggleHandler(false, true);
     }
 
     // wait 1 ms, prevent oversampling [without source]
@@ -173,13 +174,13 @@ void populate_view()
     view.add_message(eps + "Mois = " + moisutre_sensor.get() + " %" + " (" + moisutre_sensor.raw() + ")");
 }
 
-// void waterPumpOnToggleHandler()
-// {
-//     if (waterpump_button.pressed())
-//         water_pump.on();
-//     else
-//         water_pump.off();
-// }
+void waterPumpOnToggleHandler(bool pressed, bool daily_watering)
+{
+    if (pressed || daily_watering)
+        water_pump.on();
+    else
+        water_pump.off();
+}
 
 void viewScrollToggleHandler()
 {
@@ -200,9 +201,9 @@ void viewSliderToggleHandler()
 void lightToggleHandler()
 {
     if (light_button.pressed())
-        light_pin.high();
+        light.high();
     else
-        light_pin.low();
+        light.low();
 }
 
 void printDebugSerial()
