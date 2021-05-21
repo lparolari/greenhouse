@@ -2,13 +2,10 @@
 #include <Wire.h>
 #include <unity.h>
 
-#include "utils.hpp"
 #include "button.hpp"
 
-using greenhouse::utils::eps;
-
-const uint8_t out_pin = 22;    // simulate button open/closed
-const uint8_t button_pin = 23; // read button value
+const uint8_t out_pin = 10;    // simulate button open/closed
+const uint8_t button_pin = 11; // read button value
 const uint8_t button_delay = 50;
 
 void button_input_is_high_test(void)
@@ -31,6 +28,7 @@ void button_is_not_pressed_after_first_read_with_high_value_test(void)
     debounce_button.begin();
 
     debounce_button.read();
+    debounce_button.tick();
     TEST_ASSERT_FALSE(debounce_button.pressed());
 }
 
@@ -40,17 +38,19 @@ void button_is_pressed_if_after_delay_input_pin_is_high_test(void)
     debounce_button.begin();
 
     debounce_button.read();
+    debounce_button.tick();
     TEST_ASSERT_FALSE(debounce_button.pressed());
 
     delay(25);
 
     debounce_button.read();
+    debounce_button.tick();
     TEST_ASSERT_FALSE(debounce_button.pressed());
 
     delay(50);
 
     debounce_button.read();
-
+    debounce_button.tick();
     TEST_ASSERT_TRUE(debounce_button.pressed());
 }
 
@@ -58,7 +58,7 @@ void setup()
 {
     // Wait if Serial.DTR/RTS not supported before UNITY_BEING()
     delay(2000);
-
+    Serial.begin(9600);
     UNITY_BEGIN();
 
     pinMode(out_pin, OUTPUT);

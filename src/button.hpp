@@ -2,11 +2,12 @@
 
 #include <Arduino.h>
 #include "delay.hpp"
+#include "pin.hpp"
 
 namespace greenhouse::button
 {
 
-    // @brief A debounce button, i.e., with noise cancellation.
+    // @brief A debounce button, i.e., button with noise cancellation.
     //
     // As stated in https://www.arduino.cc/en/Tutorial/BuiltInExamples/Debounce
     // we need to check two times within a (short) period of time for HIGH
@@ -16,47 +17,57 @@ namespace greenhouse::button
     // @tparam Pin The button pin
     // @tparam DelayMs The delay in milliseconds to wait from a measurement
     //         and another before setting button state to pressed or not
-    template <uint8_t Pin = 0, uint32_t DelayMs = 50>
-    class DebounceButton
+    template <class InputPin, class Delay>
+    class _DebounceButton
     {
     private:
-        greenhouse::delay::Delay<DelayMs> _delay;
+        Delay _delay;
+        InputPin _input_pin;
         int _value;
         int _prev_value;
 
     public:
-        DebounceButton() : _value(LOW), _prev_value(LOW)
+        _DebounceButton() : _value(LOW), _prev_value(LOW)
         {
         }
 
-        // @brief Initializes the componet. To be called in Arduino's `setup()` function.
+        // @brief Initializes the componet
         void begin()
         {
-            pinMode(Pin, INPUT);
+            _input_pin.begin();
         }
 
-        void read()
+        // @brief Forward the delay
+        void tick(uint64_t ms = millis())
         {
-            _delay.tick(millis());
+            _delay.tick(ms);
             if (_delay.is_fire())
             {
                 _prev_value = _value;
-                _value = digitalRead(Pin);
+                _value = _input_pin.get();
                 _delay.fired();
             }
         }
 
-        int raw()
+        // @brief Reads sensor data
+        void read()
         {
-            return _value;
+            _input_pin.read();
         }
 
-        bool pressed()
+        // @brief Returns whether the button is pressed or not. The button is
+        // pressed if we receive two subsequent high values within the delay
+        // time.
+        // @returns A boolean value representig button pressed or not
+        bool pressed() const
         {
             // Conservative for HIGH in transition states
             return _prev_value == HIGH && _value == HIGH;
         }
     };
+
+    template <uint8_t Pin = 0, uint64_t DelayMs = 50>
+    using DebounceButton = _DebounceButton<greenhouse::pin::DigitalInput<Pin>, greenhouse::delay::Delay<DelayMs>>;
 
     // @brief A toggle button with protection agaist noise
     //
@@ -168,7 +179,7 @@ namespace greenhouse::button
             }
         }
 
-        bool pressed()
+        bool pressed() const
         {
             return _state == _ON || _state == _MAY_TOGGLE || _state == _MAY_TOGGLE_TO_OFF;
         }
