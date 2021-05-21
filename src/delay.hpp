@@ -47,7 +47,7 @@ namespace greenhouse::delay
             current_millis = ms;
         }
 
-        bool is_after()
+        bool is_after() const
         {
             return current_millis > start_millis + TimerMs;
         }
