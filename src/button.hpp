@@ -185,4 +185,75 @@ namespace greenhouse::button
         }
     };
 
+    // @brief A simple button with *pressed* and *released* events.
+    //
+    // Emits *pressed* event when there is a change from low to high in input
+    // sequence, if instead there is a change from high to low it emits
+    // *released* event. When the signal is stationary no event is emitted.
+    //
+    // More precisely, this component implements a convolution between three values
+    // of the sequence and filter 1x3. The filter is [-1, 0, 1]. For first value of
+    // convolution (when not enough data is available) convolution is executed with
+    // zero padding.
+    //
+    // @tparam InputSequence Is a sequence (x)_t, where x is in {0, 1} while t
+    // is a natural number.
+    template <class InputSequence>
+    class _EventButton
+    {
+    private:
+        InputSequence _input_sequence;
+        int values[3] = {0, 0, 0};
+        int filter[3] = {-1, 0, 1};
+
+        // @brief Computes the convolution between three values in the input
+        // sequence and and [-1, 0, 1] filter.
+        int conv() const
+        {
+            return values[0] * filter[0] + values[1] * filter[1] + values[2] * filter[2];
+        }
+
+    public:
+        // @brief Initializes the component.
+        void begin()
+        {
+            _input_sequence.begin();
+        }
+
+        // @brief Reads input sequence value and memorize it in the buffer.
+        void read()
+        {
+            _input_sequence.read();
+
+            int x_t = _input_sequence.pressed() ? 1 : 0;
+
+            values[0] = values[1];
+            values[1] = values[2];
+            values[2] = x_t;
+        }
+
+        // @brief Forwards the component.
+        void tick(uint64_t ms = millis())
+        {
+            _input_sequence.tick(ms);
+        }
+
+        // @brief Returns true if the button is pressed, false otherwise.
+        // @returns A boolean value representing button pressed event.
+        bool pressed() const
+        {
+            return conv() == 1;
+        }
+
+        // @brief Returns true if the button is released, false otherwise.
+        // @returns A boolean value representing button released event.
+        bool released() const
+        {
+            return conv() == -1;
+        }
+    };
+
+    template <uint8_t Pin = 0, uint64_t DelayMs = 50>
+    using EventButton = _EventButton<DebounceButton<Pin, DelayMs>>;
+
 } // namespace greenhouse::button
