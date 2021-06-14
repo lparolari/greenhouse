@@ -192,7 +192,7 @@ namespace greenhouse::button
     // *released* event. When the signal is stationary no event is emitted.
     //
     // More precisely, this component implements a convolution between three values
-    // of the sequence and filter 1x3. The filter is [-1, 0, 1]. For first value of
+    // of the sequence and filter 1x2. The filter is [-1, 1]. For first value of
     // convolution (when not enough data is available) convolution is executed with
     // zero padding.
     //
@@ -203,14 +203,14 @@ namespace greenhouse::button
     {
     private:
         InputSequence _input_sequence;
-        int values[3] = {0, 0, 0};
-        int filter[3] = {-1, 0, 1};
+        int values[2] = {0, 0};
+        int filter[2] = {-1, 1};
 
         // @brief Computes the convolution between three values in the input
-        // sequence and and [-1, 0, 1] filter.
+        // sequence and and [-1, 1] filter.
         int conv() const
         {
-            return values[0] * filter[0] + values[1] * filter[1] + values[2] * filter[2];
+            return values[0] * filter[0] + values[1] * filter[1];
         }
 
     public:
@@ -228,11 +228,10 @@ namespace greenhouse::button
             int x_t = _input_sequence.pressed() ? 1 : 0;
 
             values[0] = values[1];
-            values[1] = values[2];
-            values[2] = x_t;
+            values[1] = x_t;
         }
 
-        // @brief Forwards the component.
+        // @brief Ticks the component.
         void tick(uint64_t ms = millis())
         {
             _input_sequence.tick(ms);
