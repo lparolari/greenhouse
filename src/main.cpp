@@ -39,8 +39,9 @@ greenhouse::delay::Timer<3000> waterpump_timer;
 
 greenhouse::button::ToggleButton<60> display_slider_button;
 greenhouse::button::DebounceButton<60> slide_button;
-greenhouse::button::DebounceButton<52> waterpump_button;
-greenhouse::button::ToggleButton<53> light_button;
+greenhouse::button::EventButton<51> panic_button;
+greenhouse::button::EventButton<52> waterpump_button;
+greenhouse::button::EventButton<53> light_button;
 
 greenhouse::rtc::Rtc<> rtc;
 
@@ -95,6 +96,12 @@ void loop()
     forward_sensors();
     forward_delays();
 
+    if (waterpump_button.pressed())
+        water_pump.on();
+
+    viewSliderToggleHandler();
+    lightToggleHandler();
+
     // trigger delayed actions for display
     if (display_delay.is_fire())
     {
@@ -104,19 +111,6 @@ void loop()
         viewScrollToggleHandler();
 
         display.display(view.get_message());
-    }
-
-    // trigger view slider based on button pressed
-    if (button_delay.is_fire())
-    {
-        button_delay.fired();
-
-        // A delay may not be needed in this case, however
-        // we want to avoid noise (which also buttons handle).
-
-        waterPumpOnToggleHandler(waterpump_button.pressed(), false);
-        viewSliderToggleHandler();
-        lightToggleHandler();
     }
 
     // trigger dalayed actions for debug
@@ -149,10 +143,14 @@ void forward_sensors()
     display_slider_button.read();
     slide_button.read();
     waterpump_button.read();
+
+    panic_button.read();
     light_button.read();
 
     // tick also the water pump
     water_pump.tick(millis());
+    waterpump_button.tick(millis());
+    light_button.tick(millis());
 }
 
 void forward_delays()
