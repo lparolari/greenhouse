@@ -2,43 +2,55 @@
 
 #include <Arduino.h>
 
-#include "component.hpp"
-
 namespace greenhouse::pin
 {
-    using Component = greenhouse::component::Component;
-
     // @brief A digital output pin
     // @tparam Pin Number of pin
-    template <uint8_t Pin = 0>
-    class DigitalOutput : public Component
+    // @tparam Inverted Inverted output: low is high and high is low
+    template <uint8_t Pin = 0, bool Inverted = false>
+    class DigitalOutput
     {
-    public:
-        DigitalOutput() = default;
+    private:
+        uint8_t _state;
 
-        void begin() override
+    public:
+        DigitalOutput() : _state(Inverted ? HIGH : LOW) {}
+
+        void begin()
         {
             pinMode(Pin, OUTPUT);
-            digitalWrite(Pin, LOW);
+            apply();
         }
 
         // @brief Set pin value to low (i.e., 0)
         void low()
         {
-            digitalWrite(Pin, LOW);
+            _state = Inverted ? HIGH : LOW;
         }
 
         // @brief Set pin value to high (i.e., 1)
         void high()
         {
-            digitalWrite(Pin, HIGH);
+            _state = Inverted ? LOW : HIGH;
+        }
+
+        // @brief Switch button state
+        void toggle()
+        {
+            _state = _state == LOW ? HIGH : LOW;
+        }
+
+        // @brief Forward the component
+        void apply() const
+        {
+            digitalWrite(Pin, _state);
         }
     };
 
     // @brief A digital input pin
     // @tparam Pin Number of pin
     template <uint8_t Pin = 0>
-    class DigitalInput : public Component
+    class DigitalInput
     {
     private:
         int _value;
@@ -46,7 +58,7 @@ namespace greenhouse::pin
     public:
         DigitalInput() : _value(LOW){};
 
-        void begin() override
+        void begin()
         {
             pinMode(Pin, INPUT);
         }
@@ -68,7 +80,7 @@ namespace greenhouse::pin
     // @brief An analog input pin
     // @tparam Pin Number of pin
     template <uint8_t Pin = 0>
-    class AnalogInput : public Component
+    class AnalogInput
     {
     private:
         int _value;
@@ -76,7 +88,7 @@ namespace greenhouse::pin
     public:
         AnalogInput() : _value(0){};
 
-        void begin() override
+        void begin()
         {
             pinMode(Pin, INPUT);
         }

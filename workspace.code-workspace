@@ -1,9 +1,9 @@
 {
   "folders": [
-	{
-		"name": "greenhouse",
-		"path": "."
-	}
-],
+    {
+      "name": "greenhouse",
+      "path": "."
+    }
+  ],
   "settings": {}
 }
